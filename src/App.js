@@ -1,9 +1,9 @@
 import logo from './logo.svg';
 import './App.css';
 import io from 'socket.io-client'; // Add this
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-const socket = io.connect('http://192.168.102.28:3000');
+const socket = io.connect('http://192.168.10.102:3000');
 // const socket = socket
 
 function App() {
@@ -30,32 +30,42 @@ setValueInp('')
 
   useEffect(()=>{
     socket.on("hello", (data) => {
-      console.log(123);
-      console.log(data); // 1
-      console.log(name);
-      console.log(data.name);
+      // console.log(123);
+      // console.log(data); // 1
+      // console.log(name);
+      // console.log(data.name);
       setNameDB(data.name)
       setValueMsg(prev=>{console.log('prev',prev)
          return [...prev,data];})
      
     })
-  
+  return ()=> socket.off("hello")
   },[])
   useEffect(()=>{
-    console.log(valueMsg);
-    console.log(nameDB == name);
+    // console.log(valueMsg);
+    // console.log(nameDB == name);
     if(!!nameDB&&(nameDB == name[0])){
-      console.log(1223);
+      // console.log(1223);
       setClassName(prev=>[...prev,true])
     }if(valueMsg.length >= 1 &&!!nameDB&&!(nameDB == name[0])){
       setClassName(prev=>[...prev,false])
     }
   },[nameDB])
 
-  useEffect(()=>{console.log(className);},[className])
+  
+  // Scroll to the most recent message
+  const containerRef =useRef()
+  useEffect(()=>{
+    containerRef.current.scrollTop = containerRef.current.scrollHeight
+    // console.log('containerRef.current.scrollTop',containerRef.current.scrollTop);
+    // console.log('containerRef.current.scrollHeight',containerRef.current.scrollHeight);
+  },[valueMsg])
+  // useEffect(()=>{console.log(className);
+  //   console.log('containerRef.current.scrollTop',containerRef.current.scrollTop);
+  // },[className])
   return (
-    <div className='wapper'>
-      <div className='container'>{valueMsg.map((item,i)=>(<ul className={className[i]?'flex-end':''} key={i} id="messages">{`${item.name}: ${item.valueInp}`}</ul>))}</div>
+    <div className='wapper' >
+      <div className='container' ref={containerRef}>{valueMsg.map((item,i)=>(<ul className={className[i]?'flex-end':''} key={i} id="messages">{`${item.name}: ${item.valueInp}`}</ul>))}</div>
       <form id="form" action="">
         <input id="input" value={valueInp} onChange={e=>setValueInp(e.target.value)} /><button onClick={handelClick}>Send</button>
       </form>
