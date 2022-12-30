@@ -3,7 +3,7 @@ import './App.css';
 import io from 'socket.io-client'; // Add this
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const socket = io.connect('http://192.168.10.102:3000');
+const socket = io.connect('http://192.168.102.28:3000');
 // const socket = socket
 
 function App() {
@@ -22,7 +22,7 @@ useEffect(()=>{
 },[])
   const handelClick = (e)=>{
 e.preventDefault()
-const data = {name,valueInp}
+const data = {user:name,content:valueInp}
 socket.emit("hello",data);
 setValueInp('')
   }
@@ -31,10 +31,10 @@ setValueInp('')
   useEffect(()=>{
     socket.on("hello", (data) => {
       // console.log(123);
-      // console.log(data); // 1
+      console.log(data); // 1
       // console.log(name);
       // console.log(data.name);
-      setNameDB(data.name)
+      setNameDB(data.user[0])
       setValueMsg(prev=>{console.log('prev',prev)
          return [...prev,data];})
      
@@ -65,7 +65,7 @@ setValueInp('')
   // },[className])
   return (
     <div className='wapper' >
-      <div className='container' ref={containerRef}>{valueMsg.map((item,i)=>(<ul className={className[i]?'flex-end':''} key={i} id="messages">{`${item.name}: ${item.valueInp}`}</ul>))}</div>
+      <div className='container' ref={containerRef}>{valueMsg.map((item,i)=>(<ul className={className[i]?'flex-end':''} key={i} id="messages">{`${item.user}: ${item.content}`}</ul>))}</div>
       <form id="form" action="">
         <input id="input" value={valueInp} onChange={e=>setValueInp(e.target.value)} /><button onClick={handelClick}>Send</button>
       </form>
